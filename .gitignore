@@ -1,0 +1,5 @@
+.git-credentials
+wireguard/
+backups/
+.*
+!.gitignore

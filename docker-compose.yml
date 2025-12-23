@@ -1,0 +1,72 @@
+services:
+  db:
+    image: mariadb:10.6
+    container_name: dmxs-db-1
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=dante1234
+      - MYSQL_PASSWORD=dante1234
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    networks:
+      - cloud-network
+
+  app:
+    image: nextcloud
+    container_name: dmxs-app-1
+    restart: always
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+    volumes:
+      - nextcloud_data:/var/www/html
+    environment:
+      - MYSQL_PASSWORD=dante1234
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=db
+    networks:
+      - cloud-network
+
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy
+    container_name: wg-easy
+    restart: always
+    environment:
+      - WG_HOST=100.112.212.127
+      - PASSWORD_HASH='$$2y$$10$$WBQD26FnyxDGFSHfVAizHudvQXxO641Afc3SU3y1bK0nOLkLb4'
+    ports:
+      - "51820:51820/udp"
+      - "51821:51821/tcp"
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    networks:
+      - cloud-network
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: always
+    volumes:
+      - uptime-kuma_data:/app/data
+    ports:
+      - 3001:3001
+    networks:
+      - cloud-network
+
+networks:
+  cloud-network:
+    driver: bridge
+
+volumes:
+  nextcloud_data:
+  db_data:
+  uptime-kuma_data:
