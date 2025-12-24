@@ -4,3 +4,4 @@ backups/
 .*
 !.gitignore
 .env
+container_name=nextcloud-app

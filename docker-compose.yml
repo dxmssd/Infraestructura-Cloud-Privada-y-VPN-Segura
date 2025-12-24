@@ -2,7 +2,7 @@
 services:
   db:
     image: mariadb:10.6
-    container_name: dmxs-db-1
+    container_name: ${container_name}
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     volumes:
