@@ -3,3 +3,4 @@ wireguard/
 backups/
 .*
 !.gitignore
+.env
