@@ -22,21 +22,23 @@ The solution is composed of four main layers running in isolated containers:
     Monitoring Layer: Uptime Kuma (Real-time dashboard for service health checks).
 3. Technical Achievements & Troubleshooting
 
-During deployment, advanced system administration, DevOps, and Blue Team practices were applied:
+During deployment, advanced system administration, DevOps, and Blue Team practices were applied to ensure infrastructure resilience:
 
-    Security & Operational Hardening (Misconfiguration Fix): Identified and resolved a critical naming collision (OWASP Top 10: Security Misconfiguration) where the db and app services shared the same container_name variable. I implemented Service Isolation by assigning unique, explicit identifiers, ensuring correct internal DNS resolution and logging.
+    Edge Security & Reverse Proxy Implementation: Deployed Nginx Proxy Manager as the primary ingress controller. This architectural layer acts as a WAF-lite (Web Application Firewall), providing centralized traffic management and shielding internal microservices from direct network exposure.
 
-    SRE & Monitoring: Integrated Uptime Kuma to monitor inter-container health. Configured custom HTTP Status Code validation (200-499) to manage Nextcloud's security redirects.
+    Infrastructure Hardening via ACLs: Configured IP-based Access Control Lists (ACLs) using a "Strict Whitelist" strategy. Administrative access to the cloud environment is restricted at the edge layer, ensuring only the authorized management workstation (CachyOS Host) can reach critical service endpoints.
 
-    Docker Networking: Resolved inter-container communication blocks by implementing a dedicated Docker Bridge Network, allowing Uptime Kuma to reach the Nextcloud service via internal IP.
+    Security & Operational Misconfiguration Resolution: Identified and resolved a critical naming collision (OWASP Top 10: Security Misconfiguration) where the db and app services shared the same container_name variable. Implemented unique service identifiers to ensure stable internal DNS resolution and accurate container logging.
 
-    Security Hardening: Implemented Bcrypt Hashing for VPN authentication. Fixed environment variable parsing errors in Docker by using escaped characters ($$) for complex cryptographic hashes.
+    WAF Integration & Optimization: Enabled the "Block Common Exploits" directive to intercept and mitigate common web vulnerabilities (SQLi, XSS) before they reach the application backend. Integrated Websocket support to maintain persistent connections for real-time data synchronization.
 
-    Nextcloud Trusted Domains: Authorized VPN and internal Docker subnets using occ commands, allowing secure access from both the WireGuard tunnel and the monitoring system.
+    SRE & Monitoring: Integrated Uptime Kuma to monitor inter-container health. Configured custom HTTP Status Code validation (200-499) to manage Nextcloud's security redirects and ensure accurate availability metrics.
 
-    Mobile Optimization: Fixed packet fragmentation on cellular networks by adjusting MTU to 1280 within the WireGuard configuration.
+    Docker Networking & DNS: Resolved inter-container communication blocks by implementing a dedicated Docker Bridge Network. Implemented local DNS overrides on the host via /etc/hosts to enable domain-based routing (nube.dante.local) within the private segment.
 
-    Automated Disaster Recovery: Implemented a Bash automation script via Cron for daily MariaDB backups and critical Nextcloud configs, including a 7-day retention policy.
+    Security Hardening & Mobile Optimization: Implemented Bcrypt Hashing for VPN authentication and adjusted MTU to 1280 within WireGuard to prevent packet fragmentation on cellular networks.
+
+    Automated Disaster Recovery: Developed a Bash automation script scheduled via Cron for daily MariaDB backups and critical Nextcloud configuration exports, maintaining a 7-day data retention policy.
     
 
 4. Key Administration Commands
@@ -59,5 +61,24 @@ Real-Time Monitoring Dashboard (Uptime Kuma)
 <img width="1869" height="899" alt="image" src="https://github.com/user-attachments/assets/e360ca72-45f4-45b3-9003-5b1411ac9e19" />
 
 ![wire](https://github.com/user-attachments/assets/f2805f7b-45d0-4845-aae8-29346a2611d1)
+
+5. Edge Security & Access Control (Nginx Proxy Manager)
+
+1. Proxy Host Configuration & WAF Rules
+This view confirms the successful deployment of the Reverse Proxy. Note the active 'Block Common Exploits' toggle and the assignment of a custom Access Control List (ACL), which forms the first line of defense against automated web attacks and unauthorized reconnaissance.
+<img width="956" height="875" alt="image" src="https://github.com/user-attachments/assets/bdbc5b0f-0f87-4a26-8a21-901954eea384" />
+
+
+3. IP-Based Access Control List (Whitelist)
+
+    "Detailed view of the Security Rules implementation. The configuration follows a 'Default Deny' approach, explicitly whitelisting the administrative workstation's IP while dropping all other traffic at the edge. This significantly reduces the service's exposure within the local network.
+  <img width="948" height="878" alt="image" src="https://github.com/user-attachments/assets/19cb02a7-f57f-4346-a410-f93e68db0e91" />
+
+
+5. Security Validation: 403 Forbidden Response
+
+    "Validation of the security layer in action. When an unauthorized device attempts to reach the cloud endpoint, the Nginx Proxy Manager immediately intercepts the request and returns a 403 Forbidden status code. This evidence confirms that the ACLs are correctly filtering traffic and protecting the backend.
+<img width="714" height="1599" alt="image" src="https://github.com/user-attachments/assets/cd0b5419-ad08-47ab-aa4a-3454065d9791" />
+
 
 
