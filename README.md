@@ -20,21 +20,23 @@ The solution is composed of four main layers running in isolated containers:
     Security Layer: WG-Easy (WireGuard server with Bcrypt-secured admin panel).
 
     Monitoring Layer: Uptime Kuma (Real-time dashboard for service health checks).
-
 3. Technical Achievements & Troubleshooting
 
-During deployment, advanced system administration and DevOps skills were applied:
+During deployment, advanced system administration, DevOps, and Blue Team practices were applied:
+
+    Security & Operational Hardening (Misconfiguration Fix): Identified and resolved a critical naming collision (OWASP Top 10: Security Misconfiguration) where the db and app services shared the same container_name variable. I implemented Service Isolation by assigning unique, explicit identifiers, ensuring correct internal DNS resolution and logging.
 
     SRE & Monitoring: Integrated Uptime Kuma to monitor inter-container health. Configured custom HTTP Status Code validation (200-499) to manage Nextcloud's security redirects.
 
-    Docker Networking: Resolved inter-container communication blocks by implementing a dedicated Docker Bridge Network, allowing Uptime Kuma to reach the Nextcloud service via internal IP (172.18.0.5).
+    Docker Networking: Resolved inter-container communication blocks by implementing a dedicated Docker Bridge Network, allowing Uptime Kuma to reach the Nextcloud service via internal IP.
 
     Security Hardening: Implemented Bcrypt Hashing for VPN authentication. Fixed environment variable parsing errors in Docker by using escaped characters ($$) for complex cryptographic hashes.
 
-    Nextcloud Trusted Domains: Authorized VPN and internal Docker subnets using occ commands, allowing secure access from both the WireGuard tunnel (10.8.0.1) and the monitoring system.
+    Nextcloud Trusted Domains: Authorized VPN and internal Docker subnets using occ commands, allowing secure access from both the WireGuard tunnel and the monitoring system.
 
     Mobile Optimization: Fixed packet fragmentation on cellular networks by adjusting MTU to 1280 within the WireGuard configuration.
-    Automated Disaster Recovery: I implemented an automation script in Bash scheduled via Cron to perform daily backups of the MariaDB database and critical Nextcloud configurations, including a 7-day data retention policy.
+
+    Automated Disaster Recovery: Implemented a Bash automation script via Cron for daily MariaDB backups and critical Nextcloud configs, including a 7-day retention policy.
     
 
 4. Key Administration Commands
