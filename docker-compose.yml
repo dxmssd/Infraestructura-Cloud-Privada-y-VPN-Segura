@@ -1,8 +1,7 @@
-
 services:
   db:
     image: mariadb:10.6
-    container_name: dante-db
+    container_name: nextcloud-db
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     volumes:
@@ -14,6 +13,7 @@ services:
       - MYSQL_USER=nextcloud
     networks:
       - cloud-network
+
   nginx-proxy:
     image: 'jc21/nginx-proxy-manager:latest'
     container_name: nginx-proxy-manager
@@ -23,17 +23,15 @@ services:
       - '81:81'
       - '443:443'
     volumes:
-     - ./data:/data
-     - ./letsencrypt:/etc/letsencrypt
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
     networks:
-     - cloud-network
+      - cloud-network
 
   app:
     image: nextcloud
-    container_name: ${container_name}
+    container_name: nextcloud-app
     restart: always
-    ports:
-      - 8080:80
     depends_on:
       - db
     volumes:
@@ -71,8 +69,6 @@ services:
     restart: always
     volumes:
       - uptime-kuma_data:/app/data
-    ports:
-      - 3001:3001
     networks:
       - cloud-network
 
@@ -80,14 +76,13 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
     restart: unless-stopped
-    command: tunnel --no-autoupdate run --token eyJhIjoiOWI2MmY2ZTgwNjkwMDQ0MmRiM2NmNDUyZjQwOTk1OTAiLCJ0IjoiMWYzMTM5MTItODI4YS00NzQxLWIxOTMtOTUxODQ0NWZhYzViIiwicyI6Ik5EUmlNV016WVRJdFlqRXdZaTAwTjJSbExXRTJPVEF0TVdKbE5qa3haVE00TTJZMCJ9
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TOKEN}
     networks:
       - cloud-network
 
 networks:
   cloud-network:
     driver: bridge
-
 
 volumes:
   nextcloud_data:
