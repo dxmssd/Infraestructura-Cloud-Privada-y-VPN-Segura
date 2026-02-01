@@ -1,0 +1,4 @@
+[29/Jan/2026:23:46:37 +0000] 400 - - http localhost-nginx-proxy-manager "-" [Client 192.168.100.5] [Length 154] [Gzip -] "-" "-"
+[29/Jan/2026:23:46:37 +0000] 400 - - http localhost-nginx-proxy-manager "-" [Client 192.168.100.5] [Length 154] [Gzip -] "-" "-"
+[29/Jan/2026:23:54:29 +0000] 200 - GET http 192.168.100.115 "/" [Client 192.168.100.5] [Length 568] [Gzip 1.86] "Mozilla/5.0 (X11; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0" "-"
+[29/Jan/2026:23:54:29 +0000] 400 - GET http 192.168.100.115 "/favicon.ico" [Client 127.0.0.1] [Length 230] [Gzip -] "-" "-"
